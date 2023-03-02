@@ -1,0 +1,177 @@
+title: "ZPP Bachelor's project."
+description: "NER in a new pipeline (Named Entity Recognition) to work with medical documentation."
+# Variables can be referenced across the project.yml using ${vars.var_name}
+vars:
+  name: "zpp-ner"
+  lang: "pl"
+  data: "all.jsonl"
+  version: "0.0.0"
+  # Set your GPU ID, -1 is CPU 0 is default GPU if you have 1 GPU
+  gpu_id: 0
+  # Vectors model for train-with-vectors
+  vectors_model: "pl_core_news_lg"
+
+  train_size: 0.8
+
+
+# These are the directories that the project needs. The project CLI will make
+# sure that they always exist.
+directories: ["assets", "corpus", "configs", "training", "training/base", "training/with-vec", "training/trf", "training/trf-with-vec", "scripts", "utils", "packages"]
+
+assets:
+  - dest: "assets/all.jsonl"
+    description: "All annotated data"
+
+# Workflows are sequences of commands (see below) executed in order. You can
+# run them via "spacy project run [workflow]". If a commands's inputs/outputs
+# haven't changed, it won't be re-run.
+workflows:
+  base:
+    - convert
+    - train-base
+    - evaluate-base
+  vectors:
+    - convert
+    - train-with-vec
+    - evaluate-with-vec
+  transformers:
+    - convert
+    - train-trf
+    - evaluate-trf
+  transformers_vectors:
+    - convert
+    - train-trf-with-vec
+    - evaluate-trf-with-vec
+
+# Project commands, specified in a style similar to CI config files (e.g. Azure
+# pipelines). The name is the command name that lets you trigger the command
+# via "spacy project run [command] [path]". The help message is optional and
+# shown when executing "spacy project run [optional command] [path] --help".
+commands:
+  - name: "import-doccano"
+    help: "Export labeled data from doccano and unpack it in /assets"
+    script:
+      - "python scripts/import_dataset.py 4 assets http://zpp-doccano.herokuapp.com/"
+      - "unzip assets/dataset.zip -d assets/"
+
+  - name: "download-lg"
+    help: "Download a spaCy model with pretrained vectors"
+    script:
+      - "python -m spacy download ${vars.vectors_model}"
+
+  - name: "convert"
+    help: "Convert the data to spaCy's binary format"
+    script:
+      - "python scripts/convert.py assets/${vars.data} corpus ${vars.train_size}"
+    deps:
+      - "assets/${vars.data}"
+      - "scripts/convert.py"
+    outputs:
+      - "corpus/train.spacy"
+      - "corpus/dev.spacy"
+
+  - name: "train-base"
+    help: "Train the NER model"
+    script:
+      - "python -m spacy train configs/config.cfg --output training/base/ --paths.logs ./logs/ --paths.train corpus/train.spacy --paths.dev corpus/dev.spacy --gpu-id ${vars.gpu_id} --code utils/functions.py"
+    deps:
+      - "configs/config.cfg"
+      - "corpus/train.spacy"
+      - "corpus/dev.spacy"
+      - "utils/functions.py"
+    outputs:
+      - "training/base/model-best"
+
+  - name: "train-with-vec"
+    help: "Train the NER model with vectors"
+    script:
+      - "python -m spacy train configs/config.cfg --output training/with-vec/ --paths.logs ./logs/ --paths.train corpus/train.spacy --paths.dev corpus/dev.spacy --gpu-id ${vars.gpu_id} --code utils/functions.py --initialize.vectors ${vars.vectors_model} --components.tok2vec.model.embed.include_static_vectors true"
+    deps:
+      - "configs/config.cfg"
+      - "corpus/train.spacy"
+      - "corpus/dev.spacy"
+      - "utils/functions.py"
+
+    outputs:
+      - "training/with-vec/model-best"
+
+  - name: "train-trf"
+    help: "Train the NER model with a transformer"
+    script:
+      - "python -m spacy train configs/config_trf.cfg --output training/trf/ --paths.logs ./logs/ --paths.train corpus/train.spacy --paths.dev corpus/dev.spacy --gpu-id ${vars.gpu_id} --code utils/functions.py"
+    deps:
+      - "configs/config_trf.cfg"
+      - "corpus/train.spacy"
+      - "corpus/dev.spacy"
+      - "utils/functions.py"
+    outputs:
+      - "training/trf/model-best"
+
+  - name: "train-trf-with-vec"
+    help: "Train the NER model with a transformer with vectors"
+    script:
+      - "python -m spacy train configs/config_trf.cfg --output training/trf-with-vec/ --paths.logs ./logs/ --paths.train corpus/train.spacy --paths.dev corpus/dev.spacy --gpu-id ${vars.gpu_id} --code utils/functions.py --initialize.vectors ${vars.vectors_model} --components.tok2vec.model.embed.include_static_vectors true"
+    deps:
+      - "configs/config_trf.cfg"
+      - "corpus/train.spacy"
+      - "corpus/dev.spacy"
+      - "utils/functions.py"
+    outputs:
+      - "training/trf-with-vec/model-best"
+
+  - name: "evaluate-base"
+    help: "Evaluate the base model and export metrics"
+    script:
+      - "python -m spacy evaluate training/base/model-best corpus/dev.spacy --output training/base/metrics.json"
+    deps:
+      - "corpus/dev.spacy"
+      - "training/base/model-best"
+    outputs:
+      - "training/base/metrics.json"
+
+  - name: "evaluate-with-vec"
+    help: "Evaluate the model with vectors and export metrics"
+    script:
+      - "python -m spacy evaluate training/with-vec/model-best corpus/dev.spacy --output training/with-vec/metrics.json"
+    deps:
+      - "corpus/dev.spacy"
+      - "training/with-vec/model-best"
+    outputs:
+      - "training/with-vec/metrics.json"
+
+  - name: "evaluate-trf"
+    help: "Evaluate the transformer model and export metrics"
+    script:
+      - "python -m spacy evaluate training/trf/model-best corpus/dev.spacy --output training/trf/metrics.json"
+    deps:
+      - "corpus/dev.spacy"
+      - "training/trf/model-best"
+    outputs:
+      - "training/trf/metrics.json"
+
+  - name: "evaluate-trf-with-vec"
+    help: "Evaluate the transformer model with vec and export metrics"
+    script:
+      - "python -m spacy evaluate training/trf-with-vec/model-best corpus/dev.spacy --output training/trf-with-vec/metrics.json"
+    deps:
+      - "corpus/dev.spacy"
+      - "training/trf-with-vec/model-best"
+    outputs:
+      - "training/trf-with-vec/metrics.json"
+
+  # - name: package
+  #   help: "Package the trained model as a pip package"
+  #   script:
+  #     - "python -m spacy package training/model-best packages --name ${vars.name} --version ${vars.version} --force"
+  #   deps:
+  #     - "training/model-best"
+  #   outputs_no_cache:
+  #     - "packages/${vars.lang}_${vars.name}-${vars.version}/dist/${vars.lang}_${vars.name}-${vars.version}.tar.gz"
+
+  - name: visualize
+    help: Visualize the model's output interactively using Streamlit
+    script:
+      - "streamlit run scripts/visualize_model.py training/with-vec/model-best,training/base/model-best,training/trf/model-best,training/trf-with-vec/model-best"
+    deps:
+      - "scripts/visualize_model.py"
+      - "training/with-vec/model-best"

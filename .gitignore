@@ -1,0 +1,15 @@
+# obvious sensitive and large files
+corpus
+training
+packages
+
+.env
+.idea
+__pycache__/
+
+# we don't want to share the dataset
+*.jsonl
+*.zip
+
+# wandb is used for logging purposes
+wandb
