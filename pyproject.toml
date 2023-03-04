@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "jutro-ner"
+version = "0.1.0"
+description = "SpaCy NER in a new pipeline (Named Entity Recognition) to work with medical documentation."
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+packages = [{include = "jutro_ner"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+spacy = "^3.5.0"
+doccano-client = "^1.2.7"
+python-dotenv = "^1.0.0"
+spacy-streamlit = "^1.0.5"
+wandb = "^0.13.10"
+scikit-learn = "^1.2.1"
+pre-commit = "^3.1.1"
+
+
+[tool.poetry.group.dev.dependencies]
+pylint = "^2.16.3"
+autopep8 = "^2.0.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.autopep8]
+max_line_length = 120
+in-place = true
+recursive = true
+aggressive = 3

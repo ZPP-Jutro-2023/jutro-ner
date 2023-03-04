@@ -1,0 +1,15 @@
+repos:
+-   repo: local
+    hooks:
+    -   id: autopep8
+        name: autopep8
+        entry: poetry run autopep8
+        language: system
+        types: [python]
+        require_serial: true
+    -   id: pylint
+        name: pylint
+        entry: poetry run pylint
+        language: system
+        types: [python]
+        require_serial: true
