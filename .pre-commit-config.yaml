@@ -13,3 +13,9 @@ repos:
         language: system
         types: [python]
         require_serial: true
+    -   id: spacy-docs
+        name: spacy-docs
+        entry: poetry run spacy project document --output README.md
+        language: system
+        pass_filenames: false
+        require_serial: true
