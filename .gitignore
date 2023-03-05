@@ -5,6 +5,7 @@ packages
 
 .env
 .idea
+.vscode
 __pycache__/
 
 # we don't want to share the dataset

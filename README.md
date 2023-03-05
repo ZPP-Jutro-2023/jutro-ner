@@ -29,7 +29,7 @@ Commands are only re-run if their inputs have changed.
 | `evaluate-with-vec` | Evaluate the model with vectors and export metrics |
 | `evaluate-trf` | Evaluate the transformer model and export metrics |
 | `evaluate-trf-with-vec` | Evaluate the transformer model with vec and export metrics |
-| `visualize-model` | Visualize the model's output interactively using Streamlit |
+| `visualize` | Visualize the model's output interactively using Streamlit |
 
 ### ⏭ Workflows
 
@@ -65,27 +65,21 @@ $ git clone git@github.com:ZPP-Jutro-2023/jutro-ner.git
 ```
 Then you have to install all the packages.
 
-## [Optional]
-Create new python virtual environment:
-```
-$ python3 -m venv ~/envs/jutro-ner
-```
-And add the following line to your aliases (default `~/.bashrc`)
-```
-alias jutro-ner="source ~/envs/jutro-ner/bin/activate"
-```
-Now, to activate the virtual environment you just have to type jutro-ner.
+## Install poetry
+Poetry is a really clean dependency manager and is used in this project.
 
-## Install dependencies
+On how to install, refer to [Poetry](https://python-poetry.org/docs/).
+
+## Install dependencies and hooks
 ```
-$ cd jutro-ner
-$ pip install -r requirements.txt
+$ poetry install
+$ poetry run pre-commit install
 ```
 
 ## Set up wandb
 This project uses logging with [wandb.ai](https://wandb.ai/).
 ```
-$ wandb login
+$ poetry run wandb login
 ```
 And then paste the API key from wandb.ai
 
