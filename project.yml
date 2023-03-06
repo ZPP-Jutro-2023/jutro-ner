@@ -175,3 +175,16 @@ commands:
     deps:
       - "scripts/visualize_model.py"
       - "training/with-vec/model-best"
+
+  # will have to rethink what are the use cases of this script
+  - name: create-config
+    help: "Create config files based on provided initial parameters (base.cfg) and non-default settings (extend-config.cfg)"
+    script: 
+      - "python scripts/create_config.py configs/base.cfg configs/extend-config.cfg configs/config.cfg"
+    deps:
+      - "configs/base.cfg"
+      - "configs/extend-config.cfg"
+    outputs: 
+      - "configs/config.cfg" 
+
+

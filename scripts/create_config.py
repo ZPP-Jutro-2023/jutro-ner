@@ -23,7 +23,7 @@ def main(
     final_config.to_disk(output)
 
     # Make sure that the final config is complete. If not, fill it with default values
-    fill_config(output, output, pretraining=base_params['pretraining])
+    fill_config(output, output, pretraining=base_params['pretraining'])
 
 if __name__ == '__main__':
     typer.run(main)
