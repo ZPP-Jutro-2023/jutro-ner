@@ -4,22 +4,35 @@ version = "0.1.0"
 description = "SpaCy NER in a new pipeline (Named Entity Recognition) to work with medical documentation."
 authors = ["Your Name <you@example.com>"]
 readme = "README.md"
-packages = [{include = "jutro_ner"}]
+#packages = [{include = "jutro-ner"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-spacy = "^3.5.0"
 doccano-client = "^1.2.7"
 python-dotenv = "^1.0.0"
 spacy-streamlit = "^1.0.5"
 wandb = "^0.13.10"
 scikit-learn = "^1.2.1"
 pre-commit = "^3.1.1"
+torch = "^1.13.1"
+spacy = {extras = ["transformers"], version = "^3.5.0"}
 
 
 [tool.poetry.group.dev.dependencies]
 pylint = "^2.16.3"
 autopep8 = "^2.0.2"
+
+[tool.poetry.group.m1]
+optional = true
+
+[tool.poetry.group.m1.dependencies]
+spacy = {extras = ["apple"], version = "^3.5.0"}
+
+[tool.poetry.group.cuda]
+optional = true
+
+[tool.poetry.group.cuda.dependencies]
+spacy = {extras = ["cuda-autodetect"], version = "^3.5.0"}
 
 [build-system]
 requires = ["poetry-core"]

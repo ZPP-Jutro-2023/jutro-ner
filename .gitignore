@@ -2,6 +2,8 @@
 corpus
 training
 packages
+pretrain
+project.lock
 
 .env
 .idea
