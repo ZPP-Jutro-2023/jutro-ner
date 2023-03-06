@@ -31,14 +31,17 @@ assets:
 # haven't changed, it won't be re-run.
 workflows:
   base:
+    - debug-data
     - convert
     - train-base
     - evaluate-base
   vectors:
+    - debug-data
     - convert
     - train-with-vec
     - evaluate-with-vec
   transformers:
+    - debug-data-trf
     - convert
     - train-trf
     - evaluate-trf
@@ -74,6 +77,22 @@ commands:
       - "assets/${vars.data}"
       - "scripts/convert.py"
     outputs:
+      - "corpus/train.spacy"
+      - "corpus/dev.spacy"
+
+  - name: "debug-data"
+    help: "Analyze and validate training and development data."
+    script: 
+      - "python -m spacy debug data configs/config.cfg --paths.train corpus/train.spacy --paths.dev corpus/dev.spacy --code utils/functions.py"
+    deps:
+      - "corpus/train.spacy"
+      - "corpus/dev.spacy"
+  
+  - name: "debug-data-trf"
+    help: "Analyze and validate training and development data for transformer config."
+    script: 
+      - "python -m spacy debug data configs/config_trf.cfg --paths.train corpus/train.spacy --paths.dev corpus/dev.spacy --code utils/functions.py"
+    deps:
       - "corpus/train.spacy"
       - "corpus/dev.spacy"
 

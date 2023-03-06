@@ -22,6 +22,8 @@ Commands are only re-run if their inputs have changed.
 | `download-lg` | Download a spaCy model with pretrained vectors |
 | `pretrain` | Pretrain the vectors. |
 | `convert` | Convert the data to spaCy's binary format |
+| `debug-data` | Analyze and validate training and development data. |
+| `debug-data-trf` | Analyze and validate training and development data for transformer config. |
 | `train-base` | Train the NER model |
 | `train-with-vec` | Train the NER model with vectors (bad, don't use) |
 | `train-trf` | Train the NER model with a transformer |
@@ -39,9 +41,9 @@ inputs have changed.
 
 | Workflow | Steps |
 | --- | --- |
-| `base` | `convert` &rarr; `train-base` &rarr; `evaluate-base` |
-| `vectors` | `convert` &rarr; `train-with-vec` &rarr; `evaluate-with-vec` |
-| `transformers` | `convert` &rarr; `train-trf` &rarr; `evaluate-trf` |
+| `base` | `debug-data` &rarr; `convert` &rarr; `train-base` &rarr; `evaluate-base` |
+| `vectors` | `debug-data` &rarr; `convert` &rarr; `train-with-vec` &rarr; `evaluate-with-vec` |
+| `transformers` | `debug-data-trf` &rarr; `convert` &rarr; `train-trf` &rarr; `evaluate-trf` |
 
 ### 🗂 Assets
 
