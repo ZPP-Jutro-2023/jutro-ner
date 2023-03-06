@@ -11,12 +11,20 @@ vars:
   # Vectors model for train-with-vectors
   vectors_model: "pl_core_news_lg"
 
+  # Path to file with pretrained weights
+  init_tok2vec: null #"pretrain/model999.bin"
+
+  default_args: "--paths.train corpus/train.spacy --paths.dev corpus/dev.spacy --gpu-id ${vars.gpu_id} --code utils/functions.py"
   train_size: 0.8
 
+  # Paths used for config creation
+  base_cfg: "configs/base.cfg"
+  extend_cfg: "configs/extend.cfg"
+  output_cfg: "configs/output.cfg"
 
 # These are the directories that the project needs. The project CLI will make
 # sure that they always exist.
-directories: ["assets", "corpus", "configs", "training", "training/base", "training/with-vec", "training/trf", "training/trf-with-vec", "scripts", "utils", "packages"]
+directories: ["assets", "corpus", "configs", "training", "training/base", "training/with-vec", "training/trf", "scripts", "utils", "packages", "logs"]
 
 assets:
   - dest: "assets/all.jsonl"
@@ -28,20 +36,19 @@ assets:
 workflows:
   base:
     - convert
+    - debug-data
     - train-base
     - evaluate-base
   vectors:
     - convert
+    - debug-data
     - train-with-vec
     - evaluate-with-vec
   transformers:
     - convert
+    - debug-data-trf
     - train-trf
     - evaluate-trf
-  transformers_vectors:
-    - convert
-    - train-trf-with-vec
-    - evaluate-trf-with-vec
 
 # Project commands, specified in a style similar to CI config files (e.g. Azure
 # pipelines). The name is the command name that lets you trigger the command
@@ -59,6 +66,13 @@ commands:
     script:
       - "python -m spacy download ${vars.vectors_model}"
 
+  - name: "pretrain"
+    help: "Pretrain the vectors."
+    script:
+      - "python -m spacy pretrain configs/config.cfg ./pretrain --paths.raw_text assets/${vars.data} --code utils/functions.py --gpu-id ${vars.gpu_id}"
+    deps:
+      - "assets/${vars.data}"
+
   - name: "convert"
     help: "Convert the data to spaCy's binary format"
     script:
@@ -70,10 +84,26 @@ commands:
       - "corpus/train.spacy"
       - "corpus/dev.spacy"
 
+  - name: "debug-data"
+    help: "Analyze and validate training and development data."
+    script: 
+      - "python -m spacy debug data configs/config.cfg --paths.train corpus/train.spacy --paths.dev corpus/dev.spacy --code utils/functions.py"
+    deps:
+      - "corpus/train.spacy"
+      - "corpus/dev.spacy"
+  
+  - name: "debug-data-trf"
+    help: "Analyze and validate training and development data for transformer config."
+    script: 
+      - "python -m spacy debug data configs/config_trf.cfg --paths.train corpus/train.spacy --paths.dev corpus/dev.spacy --code utils/functions.py"
+    deps:
+      - "corpus/train.spacy"
+      - "corpus/dev.spacy"
+
   - name: "train-base"
     help: "Train the NER model"
     script:
-      - "python -m spacy train configs/config.cfg --output training/base/ --paths.logs ./logs/ --paths.train corpus/train.spacy --paths.dev corpus/dev.spacy --gpu-id ${vars.gpu_id} --code utils/functions.py"
+      - "python -m spacy train configs/config.cfg --output training/base/ ${vars.default_args}  --paths.init_tok2vec ${vars.init_tok2vec}"
     deps:
       - "configs/config.cfg"
       - "corpus/train.spacy"
@@ -83,9 +113,9 @@ commands:
       - "training/base/model-best"
 
   - name: "train-with-vec"
-    help: "Train the NER model with vectors"
+    help: "Train the NER model with vectors (bad, don't use)"
     script:
-      - "python -m spacy train configs/config.cfg --output training/with-vec/ --paths.logs ./logs/ --paths.train corpus/train.spacy --paths.dev corpus/dev.spacy --gpu-id ${vars.gpu_id} --code utils/functions.py --initialize.vectors ${vars.vectors_model} --components.tok2vec.model.embed.include_static_vectors true"
+      - "python -m spacy train configs/config.cfg --output training/with-vec/ ${vars.default_args} --paths.vectors ${vars.vectors_model} --components.tok2vec.model.embed.include_static_vectors true  --paths.init_tok2vec ${vars.init_tok2vec}"
     deps:
       - "configs/config.cfg"
       - "corpus/train.spacy"
@@ -98,7 +128,7 @@ commands:
   - name: "train-trf"
     help: "Train the NER model with a transformer"
     script:
-      - "python -m spacy train configs/config_trf.cfg --output training/trf/ --paths.logs ./logs/ --paths.train corpus/train.spacy --paths.dev corpus/dev.spacy --gpu-id ${vars.gpu_id} --code utils/functions.py"
+      - "python -m spacy train configs/config_trf.cfg --output training/trf/ ${vars.default_args}"
     deps:
       - "configs/config_trf.cfg"
       - "corpus/train.spacy"
@@ -106,18 +136,6 @@ commands:
       - "utils/functions.py"
     outputs:
       - "training/trf/model-best"
-
-  - name: "train-trf-with-vec"
-    help: "Train the NER model with a transformer with vectors"
-    script:
-      - "python -m spacy train configs/config_trf.cfg --output training/trf-with-vec/ --paths.logs ./logs/ --paths.train corpus/train.spacy --paths.dev corpus/dev.spacy --gpu-id ${vars.gpu_id} --code utils/functions.py --initialize.vectors ${vars.vectors_model} --components.tok2vec.model.embed.include_static_vectors true"
-    deps:
-      - "configs/config_trf.cfg"
-      - "corpus/train.spacy"
-      - "corpus/dev.spacy"
-      - "utils/functions.py"
-    outputs:
-      - "training/trf-with-vec/model-best"
 
   - name: "evaluate-base"
     help: "Evaluate the base model and export metrics"
@@ -149,16 +167,6 @@ commands:
     outputs:
       - "training/trf/metrics.json"
 
-  - name: "evaluate-trf-with-vec"
-    help: "Evaluate the transformer model with vec and export metrics"
-    script:
-      - "python -m spacy evaluate training/trf-with-vec/model-best corpus/dev.spacy --output training/trf-with-vec/metrics.json"
-    deps:
-      - "corpus/dev.spacy"
-      - "training/trf-with-vec/model-best"
-    outputs:
-      - "training/trf-with-vec/metrics.json"
-
   # - name: package
   #   help: "Package the trained model as a pip package"
   #   script:
@@ -171,20 +179,18 @@ commands:
   - name: visualize
     help: Visualize the model's output interactively using Streamlit
     script:
-      - "streamlit run scripts/visualize_model.py training/with-vec/model-best,training/base/model-best,training/trf/model-best,training/trf-with-vec/model-best"
+      - "streamlit run scripts/visualize_model.py training/with-vec/model-best,training/base/model-best,training/trf/model-best"
     deps:
       - "scripts/visualize_model.py"
-      - "training/with-vec/model-best"
+      - "training/"
 
-  # will have to rethink what are the use cases of this script
   - name: create-config
-    help: "Create config files based on provided initial parameters (base.cfg) and non-default settings (extend-config.cfg)"
+    help: "Create config files based on provided initial parameters (base-config) and non-default settings (extend-config)"
     script: 
-      - "python scripts/create_config.py configs/base.cfg configs/extend-config.cfg configs/config.cfg"
+      - "python scripts/create_config.py ${vars.base_cfg} ${vars.extend_cfg} ${vars.output_cfg}"
     deps:
-      - "configs/base.cfg"
-      - "configs/extend-config.cfg"
+      - "${vars.base_cfg}"
+      - "${vars.extend_cfg}"
     outputs: 
-      - "configs/config.cfg" 
-
+      - "${vars.output_cfg}"
 

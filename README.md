@@ -20,16 +20,18 @@ Commands are only re-run if their inputs have changed.
 | --- | --- |
 | `import-doccano` | Export labeled data from doccano and unpack it in /assets |
 | `download-lg` | Download a spaCy model with pretrained vectors |
+| `pretrain` | Pretrain the vectors. |
 | `convert` | Convert the data to spaCy's binary format |
+| `debug-data` | Analyze and validate training and development data. |
+| `debug-data-trf` | Analyze and validate training and development data for transformer config. |
 | `train-base` | Train the NER model |
-| `train-with-vec` | Train the NER model with vectors |
+| `train-with-vec` | Train the NER model with vectors (bad, don't use) |
 | `train-trf` | Train the NER model with a transformer |
-| `train-trf-with-vec` | Train the NER model with a transformer with vectors |
 | `evaluate-base` | Evaluate the base model and export metrics |
 | `evaluate-with-vec` | Evaluate the model with vectors and export metrics |
 | `evaluate-trf` | Evaluate the transformer model and export metrics |
-| `evaluate-trf-with-vec` | Evaluate the transformer model with vec and export metrics |
 | `visualize` | Visualize the model's output interactively using Streamlit |
+| `create-config` | Create config files based on provided initial parameters (base-config) and non-default settings (extend-config) |
 
 ### ⏭ Workflows
 
@@ -40,10 +42,9 @@ inputs have changed.
 
 | Workflow | Steps |
 | --- | --- |
-| `base` | `convert` &rarr; `train-base` &rarr; `evaluate-base` |
-| `vectors` | `convert` &rarr; `train-with-vec` &rarr; `evaluate-with-vec` |
-| `transformers` | `convert` &rarr; `train-trf` &rarr; `evaluate-trf` |
-| `transformers_vectors` | `convert` &rarr; `train-trf-with-vec` &rarr; `evaluate-trf-with-vec` |
+| `base` | `convert` &rarr; `debug-data` &rarr; `train-base` &rarr; `evaluate-base` |
+| `vectors` | `convert` &rarr; `debug-data` &rarr; `train-with-vec` &rarr; `evaluate-with-vec` |
+| `transformers` | `convert` &rarr; `debug-data-trf` &rarr; `train-trf` &rarr; `evaluate-trf` |
 
 ### 🗂 Assets
 
