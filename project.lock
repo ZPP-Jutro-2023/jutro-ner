@@ -23,14 +23,14 @@ convert:
     - python scripts/convert.py assets/all.jsonl corpus 0.8
   deps:
     - path: assets/all.jsonl
-      md5: fafdd4db8220e2249bf4a5513faa502e
+      md5: 0dc7475971b9e36b46706664acbe707b
     - path: scripts/convert.py
-      md5: d54d84f7133494ca9292ebf9450c5e26
+      md5: 11784b226e6134ac3e11fd1980895a99
   outs:
     - path: corpus/train.spacy
-      md5: 95357ea8fb9bbe23a35abc18014838e8
+      md5: 49cd863ad224f673a3ae5e9e47b36239
     - path: corpus/dev.spacy
-      md5: aa4c7738ad08ef93c92d3d99f1ee9765
+      md5: 97d87015066800903240d579d0624953
   spacy_version: 3.5.0
   spacy_git_version: Unknown
 train-base:
@@ -38,19 +38,19 @@ train-base:
   script:
     - python -m spacy train configs/config.cfg --output training/base/ --paths.logs
       ./logs/ --paths.train corpus/train.spacy --paths.dev corpus/dev.spacy --gpu-id
-      0 --code utils/functions.py
+      0 --code utils/functions.py  --paths.init_tok2vec pretrain/model999.bin
   deps:
     - path: configs/config.cfg
-      md5: 85bc414f8eedbffa0de8658aef1940ca
+      md5: bb202af42935be05d043ed53b9305ee7
     - path: corpus/train.spacy
-      md5: e0e1624e3564fca68326b93cb29fad3a
+      md5: 49cd863ad224f673a3ae5e9e47b36239
     - path: corpus/dev.spacy
-      md5: a41b71043adbeffb7ede0917512d93b6
+      md5: 97d87015066800903240d579d0624953
     - path: utils/functions.py
-      md5: f44d62d578d088a75789afdb95fa8370
+      md5: 51ffc1069c776c67bbbedde867aa0580
   outs:
     - path: training/base/model-best
-      md5: da7041af79626bb8fff102c3e930ace7
+      md5: f310ff3dedf6434a2d7d69d86f12e7f9
   spacy_version: 3.5.0
   spacy_git_version: Unknown
 evaluate-base:
@@ -60,12 +60,12 @@ evaluate-base:
       training/base/metrics.json
   deps:
     - path: corpus/dev.spacy
-      md5: a41b71043adbeffb7ede0917512d93b6
+      md5: 97d87015066800903240d579d0624953
     - path: training/base/model-best
-      md5: da7041af79626bb8fff102c3e930ace7
+      md5: 1322b7bbc2371f1d9287cdc076466800
   outs:
     - path: training/base/metrics.json
-      md5: ee2c9f67193621da5ea13595874b290b
+      md5: 805b7fd6894d4529e861bc89c9a15bda
   spacy_version: 3.5.0
   spacy_git_version: Unknown
 train-with-vec:
@@ -73,20 +73,20 @@ train-with-vec:
   script:
     - python -m spacy train configs/config.cfg --output training/with-vec/ --paths.logs
       ./logs/ --paths.train corpus/train.spacy --paths.dev corpus/dev.spacy --gpu-id
-      0 --code utils/functions.py --initialize.vectors pl_core_news_lg --components.tok2vec.model.embed.include_static_vectors
-      true
+      0 --code utils/functions.py --paths.vectors pl_core_news_lg --components.tok2vec.model.embed.include_static_vectors
+      true  --paths.init_tok2vec null
   deps:
     - path: configs/config.cfg
-      md5: 85bc414f8eedbffa0de8658aef1940ca
+      md5: bb202af42935be05d043ed53b9305ee7
     - path: corpus/train.spacy
-      md5: 95357ea8fb9bbe23a35abc18014838e8
+      md5: 49cd863ad224f673a3ae5e9e47b36239
     - path: corpus/dev.spacy
-      md5: aa4c7738ad08ef93c92d3d99f1ee9765
+      md5: 97d87015066800903240d579d0624953
     - path: utils/functions.py
-      md5: f44d62d578d088a75789afdb95fa8370
+      md5: 51ffc1069c776c67bbbedde867aa0580
   outs:
     - path: training/with-vec/model-best
-      md5: dec97ca2b140bdd785b0445d00321ce3
+      md5: 37aeb25aea7f46ff2dd876d7eace74de
   spacy_version: 3.5.0
   spacy_git_version: Unknown
 evaluate-with-vec:
@@ -96,11 +96,64 @@ evaluate-with-vec:
       training/with-vec/metrics.json
   deps:
     - path: corpus/dev.spacy
-      md5: aa4c7738ad08ef93c92d3d99f1ee9765
+      md5: 97d87015066800903240d579d0624953
     - path: training/with-vec/model-best
-      md5: dec97ca2b140bdd785b0445d00321ce3
+      md5: 37aeb25aea7f46ff2dd876d7eace74de
   outs:
     - path: training/with-vec/metrics.json
-      md5: 0b937c9943ab41bd78c1f51a55cc2dd3
+      md5: 98ddbaa4bc43e31342d633bb44894735
+  spacy_version: 3.5.0
+  spacy_git_version: Unknown
+download-lg:
+  cmd: python -m spacy run download-lg
+  script:
+    - python -m spacy download pl_core_news_lg
+  deps: []
+  outs: []
+  spacy_version: 3.5.0
+  spacy_git_version: Unknown
+pretrain:
+  cmd: python -m spacy run pretrain
+  script:
+    - python -m spacy pretrain configs/config.cfg ./pretrain --paths.raw_text assets/all.jsonl
+      --code utils/functions.py --gpu-id 0
+  deps:
+    - path: assets/all.jsonl
+      md5: 0dc7475971b9e36b46706664acbe707b
+  outs: []
+  spacy_version: 3.5.0
+  spacy_git_version: Unknown
+train-trf:
+  cmd: python -m spacy run train-trf
+  script:
+    - python -m spacy train configs/config_trf.cfg --output training/trf/ --paths.logs
+      ./logs/ --paths.train corpus/train.spacy --paths.dev corpus/dev.spacy --gpu-id
+      0 --code utils/functions.py
+  deps:
+    - path: configs/config_trf.cfg
+      md5: ee241cb916dd8171d7fa55a33cf9c8c9
+    - path: corpus/train.spacy
+      md5: 49cd863ad224f673a3ae5e9e47b36239
+    - path: corpus/dev.spacy
+      md5: 97d87015066800903240d579d0624953
+    - path: utils/functions.py
+      md5: 51ffc1069c776c67bbbedde867aa0580
+  outs:
+    - path: training/trf/model-best
+      md5: 2639f8f5f3e322fa94b87c6413bf5bba
+  spacy_version: 3.5.0
+  spacy_git_version: Unknown
+evaluate-trf:
+  cmd: python -m spacy run evaluate-trf
+  script:
+    - python -m spacy evaluate training/trf/model-best corpus/dev.spacy --output training/trf/metrics.json
+  deps:
+    - path: corpus/dev.spacy
+      md5: 97d87015066800903240d579d0624953
+    - path: training/trf/model-best
+      md5: 2639f8f5f3e322fa94b87c6413bf5bba
+  outs:
+    - path: training/trf/metrics.json
+      md5: 89b0a034ed64d9439a6950b68b844df3
   spacy_version: 3.5.0
   spacy_git_version: Unknown
