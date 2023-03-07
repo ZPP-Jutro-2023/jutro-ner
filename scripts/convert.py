@@ -2,6 +2,7 @@
 import os
 import warnings
 from pathlib import Path
+from typing import List
 
 import pandas as pd
 import spacy
@@ -9,9 +10,10 @@ import typer
 from functions import make_customize_tokenizer
 from sklearn.model_selection import train_test_split
 from spacy.tokens import DocBin
+from thinc.api import Config
 
 
-def convert(df: pd.DataFrame, output_path: Path):
+def convert(df: pd.DataFrame, output_path: Path, ents_subset: List[str]):
     nlp = spacy.blank('pl')
     db = DocBin()
 
@@ -20,7 +22,10 @@ def convert(df: pd.DataFrame, output_path: Path):
     for text, ents, idx in zip(df['text'], df['entities'], df['id']):
         text = text.lower()
         doc = nlp.make_doc(text)
-        char_spans = []
+
+        if ents_subset:
+            ents = [ent for ent in ents if ent.get('label') in ents_subset]
+
         for ent in ents:
             start, end, label = ent.get('start_offset'), ent.get(
                 'end_offset'), ent.get('label')
@@ -39,17 +44,19 @@ def convert(df: pd.DataFrame, output_path: Path):
                     " character span '{doc.text[start:end]}' does not align with token boundaries:\n\n{repr(text)}\n"
                 warnings.warn(msg)
             else:
-                char_spans.append(cs)
+                doc.set_ents([cs], default="unmodified")
 
-            doc.set_ents(char_spans)
             db.add(doc)
 
         db.to_disk(output_path)
 
 
-def create_train_dev(input_path: Path, output_path: Path, train_size: float):
+def create_train_dev(input_path: Path, output_path: Path, train_size: float, ents_cfg_path: Path):
     train_path = os.path.join(output_path, 'train.spacy')
     dev_path = os.path.join(output_path, 'dev.spacy')
+
+    ents_config = Config().from_disk(ents_cfg_path)
+    ents_subset = ents_config['ents_settings'].get('subset')
 
     print("Reading jsonl file...")
     df = pd.read_json(input_path, lines=True)
@@ -57,10 +64,10 @@ def create_train_dev(input_path: Path, output_path: Path, train_size: float):
     train, dev = train_test_split(df, train_size=train_size, random_state=42)
 
     print("Creating train dataset...")
-    convert(train, train_path)
+    convert(train, train_path, ents_subset)
 
     print("Creating validation dataset...")
-    convert(dev, dev_path)
+    convert(dev, dev_path, ents_subset)
 
 
 if __name__ == "__main__":

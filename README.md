@@ -21,7 +21,7 @@ Commands are only re-run if their inputs have changed.
 | `import-doccano` | Export labeled data from doccano and unpack it in /assets |
 | `download-lg` | Download a spaCy model with pretrained vectors |
 | `pretrain` | Pretrain the vectors. |
-| `convert` | Convert the data to spaCy's binary format |
+| `convert` | Convert the data to spaCy's binary format. Use entity labels specified in ents.cfg. |
 | `debug-data` | Analyze and validate training and development data. |
 | `debug-data-trf` | Analyze and validate training and development data for transformer config. |
 | `train-base` | Train the NER model |
