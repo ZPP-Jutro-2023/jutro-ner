@@ -42,9 +42,9 @@ inputs have changed.
 
 | Workflow | Steps |
 | --- | --- |
-| `base` | `debug-data` &rarr; `convert` &rarr; `debug-data` &rarr; `train-base` &rarr; `evaluate-base` |
-| `vectors` | `debug-data` &rarr; `convert` &rarr; `debug-data` &rarr; `train-with-vec` &rarr; `evaluate-with-vec` |
-| `transformers` | `debug-data-trf` &rarr; `convert` &rarr; `debug-data-trf` &rarr; `train-trf` &rarr; `evaluate-trf` |
+| `base` | `convert` &rarr; `debug-data` &rarr; `train-base` &rarr; `evaluate-base` |
+| `vectors` | `convert` &rarr; `debug-data` &rarr; `train-with-vec` &rarr; `evaluate-with-vec` |
+| `transformers` | `convert` &rarr; `debug-data-trf` &rarr; `train-trf` &rarr; `evaluate-trf` |
 
 ### 🗂 Assets
 

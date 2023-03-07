@@ -35,19 +35,16 @@ assets:
 # haven't changed, it won't be re-run.
 workflows:
   base:
-    - debug-data
     - convert
     - debug-data
     - train-base
     - evaluate-base
   vectors:
-    - debug-data
     - convert
     - debug-data
     - train-with-vec
     - evaluate-with-vec
   transformers:
-    - debug-data-trf
     - convert
     - debug-data-trf
     - train-trf
