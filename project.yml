@@ -3,6 +3,7 @@ description: "NER in a new pipeline (Named Entity Recognition) to work with medi
 # Variables can be referenced across the project.yml using ${vars.var_name}
 vars:
   name: "zpp-ner"
+  wandb-project-name: "zpp-ner"
   lang: "pl"
   data: "all.jsonl"
   version: "0.0.0"
@@ -14,7 +15,7 @@ vars:
   # Path to file with pretrained weights
   init_tok2vec: null #"pretrain/model999.bin"
 
-  default_args: "--paths.train corpus/train.spacy --paths.dev corpus/dev.spacy --gpu-id ${vars.gpu_id} --code scripts/functions.py"
+  default_args: "--paths.train corpus/train.spacy --paths.dev corpus/dev.spacy --gpu-id ${vars.gpu_id} --code scripts/functions.py --training.logger.project_name ${vars.wandb-project-name}"
   train_size: 0.8
 
   # Paths used for config creation
@@ -24,7 +25,7 @@ vars:
 
 # These are the directories that the project needs. The project CLI will make
 # sure that they always exist.
-directories: ["assets", "corpus", "configs", "training", "training/base", "training/with-vec", "training/trf", "scripts", "packages"]
+directories: ["assets", "corpus", "configs", "training", "scripts", "packages"]
 
 assets:
   - dest: "assets/all.jsonl"
@@ -193,3 +194,12 @@ commands:
     outputs: 
       - "${vars.output_cfg}"
 
+  - name:  wandb-sweep
+    help: "Run customized training runs for hyperparameter search using [Weights & Biases Sweeps](https://docs.wandb.ai/guides/sweeps)"
+    script:
+      - "wandb sweep -p ${vars.wandb-project-name} scripts/sweep.yml"
+    deps:
+      - "configs/sweep_config.cfg"
+      - "scripts/sweeps_using_config.py"
+      - "corpus/train.spacy"
+      - "corpus/dev.spacy"

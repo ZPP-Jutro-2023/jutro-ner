@@ -32,6 +32,7 @@ Commands are only re-run if their inputs have changed.
 | `evaluate-trf` | Evaluate the transformer model and export metrics |
 | `visualize` | Visualize the model's output interactively using Streamlit |
 | `create-config` | Create config files based on provided initial parameters (base-config) and non-default settings (extend-config) |
+| `wandb-sweep` | Run customized training runs for hyperparameter search using [Weights & Biases Sweeps](https://docs.wandb.ai/guides/sweeps) |
 
 ### ⏭ Workflows
 
