@@ -11,12 +11,16 @@ vars:
   # Vectors model for train-with-vectors
   vectors_model: "pl_core_news_lg"
 
-  # path to file with pretrained weights
+  # Path to file with pretrained weights
   init_tok2vec: null #"pretrain/model999.bin"
 
   default_args: "--paths.train corpus/train.spacy --paths.dev corpus/dev.spacy --gpu-id ${vars.gpu_id} --code utils/functions.py"
   train_size: 0.8
 
+  # Paths used for config creation
+  base_cfg: "configs/base.cfg"
+  extend_cfg: "configs/extend.cfg"
+  output_cfg: "configs/output.cfg"
 
 # These are the directories that the project needs. The project CLI will make
 # sure that they always exist.
@@ -31,18 +35,18 @@ assets:
 # haven't changed, it won't be re-run.
 workflows:
   base:
-    - debug-data
     - convert
+    - debug-data
     - train-base
     - evaluate-base
   vectors:
-    - debug-data
     - convert
+    - debug-data
     - train-with-vec
     - evaluate-with-vec
   transformers:
-    - debug-data-trf
     - convert
+    - debug-data-trf
     - train-trf
     - evaluate-trf
 
@@ -179,3 +183,13 @@ commands:
     deps:
       - "scripts/visualize_model.py"
       - "training/"
+  - name: create-config
+    help: "Create config files based on provided initial parameters (base-config) and non-default settings (extend-config)"
+    script: 
+      - "python scripts/create_config.py ${vars.base_cfg} ${vars.extend_cfg} ${vars.output_cfg}"
+    deps:
+      - "${vars.base_cfg}"
+      - "${vars.extend_cfg}"
+    outputs: 
+      - "${vars.output_cfg}"
+

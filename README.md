@@ -31,6 +31,7 @@ Commands are only re-run if their inputs have changed.
 | `evaluate-with-vec` | Evaluate the model with vectors and export metrics |
 | `evaluate-trf` | Evaluate the transformer model and export metrics |
 | `visualize` | Visualize the model's output interactively using Streamlit |
+| `create-config` | Create config files based on provided initial parameters (base-config) and non-default settings (extend-config) |
 
 ### ⏭ Workflows
 
@@ -41,9 +42,9 @@ inputs have changed.
 
 | Workflow | Steps |
 | --- | --- |
-| `base` | `debug-data` &rarr; `convert` &rarr; `train-base` &rarr; `evaluate-base` |
-| `vectors` | `debug-data` &rarr; `convert` &rarr; `train-with-vec` &rarr; `evaluate-with-vec` |
-| `transformers` | `debug-data-trf` &rarr; `convert` &rarr; `train-trf` &rarr; `evaluate-trf` |
+| `base` | `convert` &rarr; `debug-data` &rarr; `train-base` &rarr; `evaluate-base` |
+| `vectors` | `convert` &rarr; `debug-data` &rarr; `train-with-vec` &rarr; `evaluate-with-vec` |
+| `transformers` | `convert` &rarr; `debug-data-trf` &rarr; `train-trf` &rarr; `evaluate-trf` |
 
 ### 🗂 Assets
 
