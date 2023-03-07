@@ -14,7 +14,7 @@ vars:
   # Path to file with pretrained weights
   init_tok2vec: null #"pretrain/model999.bin"
 
-  default_args: "--paths.train corpus/train.spacy --paths.dev corpus/dev.spacy --gpu-id ${vars.gpu_id} --code utils/functions.py"
+  default_args: "--paths.train corpus/train.spacy --paths.dev corpus/dev.spacy --gpu-id ${vars.gpu_id} --code scripts/functions.py"
   train_size: 0.8
 
   # Paths used for config creation
@@ -24,7 +24,7 @@ vars:
 
 # These are the directories that the project needs. The project CLI will make
 # sure that they always exist.
-directories: ["assets", "corpus", "configs", "training", "training/base", "training/with-vec", "training/trf", "scripts", "utils", "packages", "logs"]
+directories: ["assets", "corpus", "configs", "training", "training/base", "training/with-vec", "training/trf", "scripts", "packages"]
 
 assets:
   - dest: "assets/all.jsonl"
@@ -69,7 +69,7 @@ commands:
   - name: "pretrain"
     help: "Pretrain the vectors."
     script:
-      - "python -m spacy pretrain configs/config.cfg ./pretrain --paths.raw_text assets/${vars.data} --code utils/functions.py --gpu-id ${vars.gpu_id}"
+      - "python -m spacy pretrain configs/config.cfg ./pretrain --paths.raw_text assets/${vars.data} --code scripts/functions.py --gpu-id ${vars.gpu_id}"
     deps:
       - "assets/${vars.data}"
 
@@ -87,7 +87,7 @@ commands:
   - name: "debug-data"
     help: "Analyze and validate training and development data."
     script: 
-      - "python -m spacy debug data configs/config.cfg --paths.train corpus/train.spacy --paths.dev corpus/dev.spacy --code utils/functions.py"
+      - "python -m spacy debug data configs/config.cfg --paths.train corpus/train.spacy --paths.dev corpus/dev.spacy --code scripts/functions.py"
     deps:
       - "corpus/train.spacy"
       - "corpus/dev.spacy"
@@ -95,7 +95,7 @@ commands:
   - name: "debug-data-trf"
     help: "Analyze and validate training and development data for transformer config."
     script: 
-      - "python -m spacy debug data configs/config_trf.cfg --paths.train corpus/train.spacy --paths.dev corpus/dev.spacy --code utils/functions.py"
+      - "python -m spacy debug data configs/config_trf.cfg --paths.train corpus/train.spacy --paths.dev corpus/dev.spacy --code scripts/functions.py"
     deps:
       - "corpus/train.spacy"
       - "corpus/dev.spacy"
@@ -108,7 +108,7 @@ commands:
       - "configs/config.cfg"
       - "corpus/train.spacy"
       - "corpus/dev.spacy"
-      - "utils/functions.py"
+      - "scripts/functions.py"
     outputs:
       - "training/base/model-best"
 
@@ -120,7 +120,7 @@ commands:
       - "configs/config.cfg"
       - "corpus/train.spacy"
       - "corpus/dev.spacy"
-      - "utils/functions.py"
+      - "scripts/functions.py"
 
     outputs:
       - "training/with-vec/model-best"
@@ -133,7 +133,7 @@ commands:
       - "configs/config_trf.cfg"
       - "corpus/train.spacy"
       - "corpus/dev.spacy"
-      - "utils/functions.py"
+      - "scripts/functions.py"
     outputs:
       - "training/trf/model-best"
 

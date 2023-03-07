@@ -6,32 +6,16 @@ from pathlib import Path
 import pandas as pd
 import spacy
 import typer
+from functions import make_customize_tokenizer
 from sklearn.model_selection import train_test_split
 from spacy.tokens import DocBin
-from spacy.util import (compile_infix_regex, compile_prefix_regex,
-                        compile_suffix_regex)
-
-
-def customize_tokenizer(nlp):
-    infixes = nlp.Defaults.infixes + \
-        [r'''=''', r'''\+''', r'''\/''', r'''\)''', r'''\*''', r'''\.''']
-    infix_regex = compile_infix_regex(infixes)
-    nlp.tokenizer.infix_finditer = infix_regex.finditer
-
-    suffixes = nlp.Defaults.suffixes + [r'''%$''']
-    suffix_regex = compile_suffix_regex(suffixes)
-    nlp.tokenizer.suffix_search = suffix_regex.search
-
-    prefixes = nlp.Defaults.prefixes + [r'''^-''']
-    prefix_regex = compile_prefix_regex(prefixes)
-    nlp.tokenizer.prefix_search = prefix_regex.search
 
 
 def convert(df: pd.DataFrame, output_path: Path):
     nlp = spacy.blank('pl')
     db = DocBin()
 
-    customize_tokenizer(nlp)
+    make_customize_tokenizer()(nlp)
 
     for text, ents, idx in zip(df['text'], df['entities'], df['id']):
         text = text.lower()
