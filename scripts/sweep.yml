@@ -1,0 +1,26 @@
+# example code from https://github.com/explosion/projects/blob/v3/integrations/wandb/scripts/sweep.yml\
+# for full config we will generate it from wandbai
+method: bayes
+metric:
+  goal: maximize
+  name: ents_f
+command:
+  - ${env}
+  - ${interpreter}
+  - scripts/sweeps_using_config.py
+  - ./configs/sweep_config.cfg
+  - ./training/sweeps
+parameters:
+  nlp.batch_size:
+    values:
+    - 32
+    - 64
+    - 128
+  training.dropout:
+    distribution: uniform
+    max: 0.5
+    min: 0.05
+  training.optimizer.learn_rate:
+    distribution: uniform
+    max: 0.01
+    min: 0.001
