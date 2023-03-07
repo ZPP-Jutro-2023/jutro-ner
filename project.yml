@@ -75,9 +75,9 @@ commands:
       - "assets/${vars.data}"
 
   - name: "convert"
-    help: "Convert the data to spaCy's binary format"
+    help: "Convert the data to spaCy's binary format. Use entity labels specified in ents.cfg."
     script:
-      - "python scripts/convert.py assets/${vars.data} corpus ${vars.train_size}"
+      - "python scripts/convert.py assets/${vars.data} corpus ${vars.train_size} configs/ents.cfg" 
     deps:
       - "assets/${vars.data}"
       - "scripts/convert.py"
