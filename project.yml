@@ -35,16 +35,19 @@ assets:
 # haven't changed, it won't be re-run.
 workflows:
   base:
+    - debug-data
     - convert
     - debug-data
     - train-base
     - evaluate-base
   vectors:
+    - debug-data
     - convert
     - debug-data
     - train-with-vec
     - evaluate-with-vec
   transformers:
+    - debug-data-trf
     - convert
     - debug-data-trf
     - train-trf
@@ -183,7 +186,6 @@ commands:
     deps:
       - "scripts/visualize_model.py"
       - "training/"
-
   - name: create-config
     help: "Create config files based on provided initial parameters (base-config) and non-default settings (extend-config)"
     script: 
