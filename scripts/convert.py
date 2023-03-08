@@ -46,9 +46,9 @@ def convert(df: pd.DataFrame, output_path: Path, ents_subset: List[str]):
             else:
                 doc.set_ents([cs], default="unmodified")
 
-            db.add(doc)
+        db.add(doc)
 
-        db.to_disk(output_path)
+    db.to_disk(output_path)
 
 
 def create_train_dev(input_path: Path, output_path: Path, train_size: float, ents_cfg_path: Path):
