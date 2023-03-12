@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "SpaCy NER in a new pipeline (Named Entity Recognition) to work with medical documentation."
 authors = ["Your Name <you@example.com>"]
 readme = "README.md"
-#packages = [{include = "jutro-ner"}]
+packages = [{include = "scripts"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"

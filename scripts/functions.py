@@ -1,4 +1,10 @@
-from spacy.util import registry, compile_suffix_regex, compile_infix_regex, compile_prefix_regex
+from spacy.util import (compile_infix_regex, compile_prefix_regex,
+                        compile_suffix_regex, registry)
+
+from scripts.rel_model import (create_classification_layer,
+                               create_instance_processor, create_instances,
+                               create_relation_model, create_tensors)
+from scripts.rel_pipe import make_relation_extractor
 
 
 @registry.callbacks("customize_tokenizer")
